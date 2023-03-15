@@ -20,6 +20,13 @@ very bad code indeed, very buggy oh no <img src="https://cdn.frankerfacez.com/av
 |----------|
 | :green_square: browser password grabber |
 | :green_square: file upload from target to attacker|
-| :blue_square: file download from attacker to target|
+| :green_square: file download from attacker to target|
 | :blue_square: code execution|
 | :blue_square: key logging|
+| :blue_square: self destruct|
+
+## Known bugs
+<ul>
+	<li>Completely breaks the "Eris_server" if input is empty or an exception occurs</li>
+	<li>Sometimes "Eris" just breaks for no apparent reason</li>
+</ul>

