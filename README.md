@@ -21,9 +21,9 @@ very bad code indeed, very buggy oh no <img src="https://cdn.frankerfacez.com/av
 | :green_square: browser password grabber |
 | :green_square: file upload from target to attacker|
 | :green_square: file download from attacker to target|
-| :blue_square: code execution|
+| :green_square: code & shell command execution|
 | :blue_square: key logging|
-| :blue_square: self destruct|
+| :green_square: self destruct|
 
 ## Known bugs
 <ul>

