@@ -1,15 +1,7 @@
 # Eris stealer
-_____________________________________________________________________
-  _____  ______ _____  _____  ______ _____       _______ ______ _____ 
- |  __ \|  ____|  __ \|  __ \|  ____/ ____|   /\|__   __|  ____|  __ \
- | |  | | |__  | |__) | |__) | |__ | |       /  \  | |  | |__  | |  ||
- | |  | |  __| |  ___/|  _  /|  __|| |      / /\ \ | |  |  __| | |  ||
- | |__| | |____| |    | | \ \| |___| |____ / ____ \| |  | |____| |__||
- |_____/|______|_|    |_|  \_\______\_____/_/    \_\_|  |______|_____/
-
-_____________________________________________________________________
-
- this project has been inactive for a while and that's because I don't want to make functional malware available to any skid with an internet connection, so all you get is a barely usable piece of software that could be used for demonstrations but that's it.
+____________________________________________________________________
+ 
+this project has been inactive for a while and that's because I don't want to make functional malware available to any skid with an internet connection, so all you get is a barely usable piece of software that could be used for demonstrations but that's it.
 _____________________________________________________________________
 
 
