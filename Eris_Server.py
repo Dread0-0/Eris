@@ -47,7 +47,8 @@ def HandleUpload(file_path, con):
         response = con.recv(1024)
         print(response.decode("utf-8"))
     except FileNotFoundError:
-        print(f"{file_path[2]} does not exist, double check your path and spelling.\n")
+        print(
+            f"{file_path[2]} does not exist, double check your path and spelling.\n")
 
 
 # a function for downloading files from the target computer
